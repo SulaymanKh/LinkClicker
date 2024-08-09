@@ -32,7 +32,7 @@ export class AdminComponent implements OnInit {
       username: this.form.value.username,
       numberOfLinks: this.form.value.linkCount,
       clicksPerLink: 1,
-      expiryInHours: this.form.value.expiryTime
+      ExpiryInMinutes: this.form.value.expiryTime
     };
 
     if (this.form.valid) {
