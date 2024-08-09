@@ -15,6 +15,7 @@ export class AdminComponent implements OnInit {
   currentPage: number = 1; 
   pageSize: number = 10;
   totalPages: number = 0;
+  isLoading: boolean = false;
 
   statusMap: { [key: number]: string } = {
     0: 'Active',
@@ -39,7 +40,7 @@ export class AdminComponent implements OnInit {
       ]),
       linkCount: new FormControl('', [Validators.required, Validators.min(1)]),
       allowedClicks: new FormControl('', [Validators.required, Validators.min(1)]),
-      expiryTime: new FormControl('')
+      expiryTime: new FormControl(null)
     });
   }
 
@@ -49,17 +50,22 @@ export class AdminComponent implements OnInit {
       username: this.form.value.username,
       numberOfLinks: this.form.value.linkCount,
       clicksPerLink: this.form.value.allowedClicks,
-      ExpiryInMinutes: this.form.value.expiryTime
+      ExpiryInMinutes: this.form.value.expiryTime || null
     };
 
     if (this.form.valid) {
+      this.isLoading = true;  
       const fullUrl = `https://localhost:7072/Admin/create-link`;
       this.http.post(fullUrl, linkData)
         .subscribe(
           (response: any) => {
             this.fetchAllLinks();
+            this.isLoading = false;  
           },
-          error => console.error('Error!', error)
+          error => {
+            console.error('Error!', error);
+            this.isLoading = false;  
+          }
         );
     } else {
       console.log('Form is not valid');
@@ -67,18 +73,26 @@ export class AdminComponent implements OnInit {
   }
 
   fetchAllLinks(){
+    this.isLoading = true; 
+
     const fullUrl = `https://localhost:7072/Admin/all-links`;
-      this.http.get(fullUrl)
-        .subscribe(
-          (response: any) => {
-            this.links = response.data;
-            this.updatePagination(); 
-          },
-          error => console.error('Error!', error)
-        );
+    this.http.get(fullUrl)
+      .subscribe(
+        (response: any) => {
+          this.links = response.data;
+          this.updatePagination(); 
+          this.isLoading = false;  
+        },
+        error => {
+          console.error('Error!', error);
+          this.isLoading = false; 
+        }
+      );
   }
 
   deleteLinks(deleteAll: boolean, statuses: number[]) {
+    this.isLoading = true; 
+
     const fullUrl = `https://localhost:7072/Admin/delete-links`;
     const requestBody = {
       deleteAll: deleteAll,
@@ -89,8 +103,12 @@ export class AdminComponent implements OnInit {
       .subscribe(
         (response: any) => {
           this.fetchAllLinks();
+          this.isLoading = false;  
         },
-        error => console.error('Error!', error)
+        error => {
+          console.error('Error!', error);
+          this.isLoading = false;  
+        }
       );
   }
 

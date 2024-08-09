@@ -3,7 +3,9 @@
       <h1 class="display-4">Admin Tools</h1>
       <p class="lead">Use this tool to create and manage expirable links.</p>
       <hr class="my-4">
-  
+      <div class="spinner-container" *ngIf="isLoading">
+        <div class="spinner-border text-primary custom-size" role="status"></div>
+      </div>
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
         <div class="form-row">
           <div class="form-group col-md-6">
@@ -30,7 +32,6 @@
         </div>
         <button type="submit" class="btn btn-primary btn-block">Create Links</button>
       </form>
-  
       <div *ngIf="links.length > 0" class="mt-4">
         <div class="extra-controls">
           <button type="button" class="btn btn-danger" (click)="deleteAllLinks()">Remove All Links</button>
