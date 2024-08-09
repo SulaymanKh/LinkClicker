@@ -34,9 +34,11 @@ namespace LinkClicker_API.Controllers
                         Id = linkId,
                         Url = request.Url,
                         Username = request.Username,
-                        ExpiryTime = DateTime.UtcNow.AddMinutes(request.ExpiryInMinutes),
+                        ExpiryTime = request.ExpiryInMinutes.HasValue
+                             ? DateTime.UtcNow.AddMinutes(request.ExpiryInMinutes.Value): (DateTime?)null,
                         MaxClicks = request.ClicksPerLink,
-                        ClickCount = 0
+                        ClickCount = 0,
+                        Status = LinkStatus.Active
                     };
 
                     _links.Add(linkId, linkData);
@@ -45,8 +47,9 @@ namespace LinkClicker_API.Controllers
                     {
                         Username = linkData.Username,
                         Link = $"{request.Url}/{linkId}",
-                        ExpiryTime = linkData.ExpiryTime,
-                        MaxClicks = request.ClicksPerLink
+                        ExpiryTime = linkData.ExpiryTime.HasValue ? linkData.ExpiryTime.Value : (DateTime?)null,
+                        MaxClicks = request.ClicksPerLink,
+                        Status = linkData.Status
                     };
 
                     links.Add(linkInfo);
@@ -75,7 +78,9 @@ namespace LinkClicker_API.Controllers
                 {
                     linkData.ClickCount++;
 
-                    if (linkData.ExpiryTime <= DateTime.UtcNow || linkData.ClickCount > linkData.MaxClicks)
+                    CheckAndValidateStatus(linkData);
+
+                    if (linkData.Status != LinkStatus.Active)
                     {
                         response.IsError = true;
                         response.Information = "There are no secrets here.";
@@ -91,7 +96,8 @@ namespace LinkClicker_API.Controllers
                             Url = linkData.Url,
                             ExpiryTime = linkData.ExpiryTime,
                             MaxClicks = linkData.MaxClicks,
-                            ClickCount = linkData.ClickCount
+                            ClickCount = linkData.ClickCount,
+                            Status = linkData.Status
                         };
                     }
                 }
@@ -111,6 +117,93 @@ namespace LinkClicker_API.Controllers
                 response.Information = "An unexpected error occurred.";
                 response.Data = null;
                 return StatusCode(500, response);
+            }
+        }
+
+        [HttpGet("all-links")]
+        public IActionResult GetAllLinks()
+        {
+            var response = new ResponseWrapper<List<LinkInfoModel>>();
+
+            try
+            {
+                foreach (var linkData in _links.Values)
+                {
+                    CheckAndValidateStatus(linkData);
+                }
+
+                var links = _links.Values.Select(linkData => new LinkInfoModel
+                {
+                    Username = linkData.Username,
+                    Link = $"{linkData.Url}/{linkData.Id}",
+                    ExpiryTime = linkData.ExpiryTime,
+                    MaxClicks = linkData.MaxClicks,
+                    Status = linkData.Status
+                }).ToList();
+
+                response.Data = links;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving all links.");
+                response.IsError = true;
+                response.Information = "An unexpected error occurred.";
+                return StatusCode(500, response);
+            }
+        }
+
+        [HttpDelete("delete-links")]
+        public IActionResult DeleteLinks(DeleteLinksRequestModel request)
+        {
+            var response = new ResponseWrapper<string>();
+
+            try
+            {
+                List<string> keysToRemove = new List<string>();
+
+                if (request.DeleteAll)
+                {
+                    keysToRemove.AddRange(_links.Keys);
+                }
+                else
+                {
+                    foreach (var link in _links)
+                    {
+                        CheckAndValidateStatus(link.Value);
+                        if (request.Statuses.Contains(link.Value.Status))
+                        {
+                            keysToRemove.Add(link.Key);
+                        }
+                    }
+                }
+
+                foreach (var key in keysToRemove)
+                {
+                    _links.Remove(key);
+                }
+
+                response.Data = $"Links have been deleted based on the provided criteria.";
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting links.");
+                response.IsError = true;
+                response.Information = "An unexpected error occurred.";
+                return StatusCode(500, response);
+            }
+        }
+
+        private void CheckAndValidateStatus(LinkDataModel linkData)
+        {
+            if (linkData.ExpiryTime.HasValue && linkData.ExpiryTime <= DateTime.UtcNow)
+            {
+                linkData.Status = LinkStatus.ExpiredByTime;
+            }
+            else if (linkData.ClickCount > linkData.MaxClicks)
+            {
+                linkData.Status = LinkStatus.ExpiredByClicks;
             }
         }
     }

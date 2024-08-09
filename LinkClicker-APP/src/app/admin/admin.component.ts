@@ -16,6 +16,12 @@ export class AdminComponent implements OnInit {
   pageSize: number = 10;
   totalPages: number = 0;
 
+  statusMap: { [key: number]: string } = {
+    0: 'Active',
+    1: 'Expired by Time',
+    2: 'Expired by Clicks'
+  };
+
   constructor(
     private http: HttpClient,
     @Inject('BASE_URL') private baseUrl: string,
@@ -23,11 +29,17 @@ export class AdminComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.fetchAllLinks();
+
     this.form = new FormGroup({
-      username: new FormControl('', [Validators.required]),
+      username: new FormControl('', [
+        Validators.required,
+        Validators.maxLength(50),
+        Validators.pattern('^[a-zA-Z0-9_]*$')
+      ]),
       linkCount: new FormControl('', [Validators.required, Validators.min(1)]),
       allowedClicks: new FormControl('', [Validators.required, Validators.min(1)]),
-      expiryTime: new FormControl('', [Validators.required, Validators.min(1)])
+      expiryTime: new FormControl('')
     });
   }
 
@@ -45,14 +57,57 @@ export class AdminComponent implements OnInit {
       this.http.post(fullUrl, linkData)
         .subscribe(
           (response: any) => {
-            this.links = response.data;
-            this.updatePagination(); 
+            this.fetchAllLinks();
           },
           error => console.error('Error!', error)
         );
     } else {
       console.log('Form is not valid');
     }
+  }
+
+  fetchAllLinks(){
+    const fullUrl = `https://localhost:7072/Admin/all-links`;
+      this.http.get(fullUrl)
+        .subscribe(
+          (response: any) => {
+            this.links = response.data;
+            this.updatePagination(); 
+          },
+          error => console.error('Error!', error)
+        );
+  }
+
+  deleteLinks(deleteAll: boolean, statuses: number[]) {
+    const fullUrl = `https://localhost:7072/Admin/delete-links`;
+    const requestBody = {
+      deleteAll: deleteAll,
+      statuses: statuses
+    };
+
+    this.http.delete(fullUrl, { body: requestBody })
+      .subscribe(
+        (response: any) => {
+          this.fetchAllLinks();
+        },
+        error => console.error('Error!', error)
+      );
+  }
+
+  deleteAllLinks() {
+    this.deleteLinks(true, []);
+  }
+
+  deleteExpiredByTime() {
+    this.deleteLinks(false, [1]); 
+  }
+
+  deleteExpiredByClicks() {
+    this.deleteLinks(false, [2]); 
+  }
+
+  getStatusText(statusCode: number): string {
+    return this.statusMap[statusCode] || 'Unknown';
   }
 
   updatePagination() {
@@ -72,6 +127,7 @@ export class AdminComponent implements OnInit {
   }
 
   navigateToLink(link: any) {
+    this.fetchAllLinks();
     window.open(link.link, '_blank');
   }
 }

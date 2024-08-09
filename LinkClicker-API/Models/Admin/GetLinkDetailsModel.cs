@@ -8,7 +8,7 @@ namespace LinkClicker_API.Models.Admin
 
         public string Link { get; set; }
 
-        public DateTime ExpiryTime { get; set; }
+        public DateTime? ExpiryTime { get; set; }
 
         public int MaxClicks { get; set; }
 
@@ -16,6 +16,8 @@ namespace LinkClicker_API.Models.Admin
 
         public string Url { get; set; }
 
-        public int ClickCount {  get; set; }
+        public int ClickCount { get; set; }
+
+        public LinkStatus Status { get; set; }
     }
 }

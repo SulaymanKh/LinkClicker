@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { AdminComponent } from './admin/admin.component';
 import { LinkDetailsComponent } from './link-details/link-details.component';
+import { HomeComponent } from './home/home.component';
 
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -15,7 +16,8 @@ import { ReactiveFormsModule } from '@angular/forms';
   declarations: [
     AppComponent,
     NavMenuComponent,
-    AdminComponent
+    AdminComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -23,9 +25,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forRoot([
-      { path: '', component: AdminComponent, pathMatch: 'full' },
-      { path: 'counter', component: AdminComponent },
-      { path: 'fetch-data', component: AdminComponent },
+      { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'admin', component: AdminComponent },
       { path: 'supersecret/:id', component: LinkDetailsComponent },
     ])

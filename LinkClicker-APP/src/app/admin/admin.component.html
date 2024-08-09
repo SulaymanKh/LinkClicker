@@ -3,11 +3,17 @@
       <h1 class="display-4">Admin Tools</h1>
       <p class="lead">Use this tool to create and manage expirable links.</p>
       <hr class="my-4">
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
         <div class="form-row">
           <div class="form-group col-md-6">
             <label for="username">Username</label>
             <input type="text" class="form-control" id="username" formControlName="username" placeholder="Enter username" required>
+            <div *ngIf="form.get('username')?.invalid && form.get('username')?.touched" class="invalid-feedback">
+              <div *ngIf="form.get('username')?.errors?.['required']">Username is required.</div>
+              <div *ngIf="form.get('username')?.errors?.['maxlength']">Username cannot be longer than 50 characters.</div>
+              <div *ngIf="form.get('username')?.errors?.['pattern']">Username can only contain letters, numbers, and underscores.</div>
+            </div>
           </div>
           <div class="form-group col-md-6">
             <label for="allowedClicks">Clicks Allowed</label>
@@ -18,13 +24,20 @@
             <input type="number" class="form-control" id="linkCount" formControlName="linkCount" placeholder="Enter number of links" required>
           </div>
           <div class="form-group col-md-6">
-            <label for="expiryTime">Expiry Time (in mins)</label>
-            <input type="number" class="form-control" id="expiryTime" formControlName="expiryTime" placeholder="Duration in mins" required>
+            <label for="expiryTime">Expiry Time (in mins) - Optional</label>
+            <input type="number" class="form-control" id="expiryTime" formControlName="expiryTime" placeholder="Duration in mins">
           </div>
         </div>
-        <button type="submit" class="btn btn-primary">Create Links</button>
+        <button type="submit" class="btn btn-primary btn-block">Create Links</button>
       </form>
+  
       <div *ngIf="links.length > 0" class="mt-4">
+        <div class="extra-controls">
+          <button type="button" class="btn btn-danger" (click)="deleteAllLinks()">Remove All Links</button>
+          <button type="button" class="btn btn-danger" (click)="deleteExpiredByTime()">Remove All Expired by Time</button>
+          <button type="button" class="btn btn-danger" (click)="deleteExpiredByClicks()">Remove All Expired by Clicks</button>
+          <button type="button" class="btn btn-success" (click)="fetchAllLinks()">Refresh</button>
+        </div>
         <h2>Generated Links</h2>
         <table class="table">
           <thead>
@@ -33,6 +46,7 @@
               <th>Link</th>
               <th>Expiry Time</th>
               <th>Max Clicks</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -42,6 +56,7 @@
               <td>{{ link.link }}</td>
               <td>{{ link.expiryTime | date:'short' }}</td>
               <td>{{ link.maxClicks }}</td>
+              <td>{{ getStatusText(link.status) }}</td>
               <td><button class="btn btn-info">Go to Link</button></td>
             </tr>
           </tbody>

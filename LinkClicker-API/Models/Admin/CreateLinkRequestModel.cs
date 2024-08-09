@@ -10,7 +10,7 @@
 
         public int ClicksPerLink { get; set; }
 
-        public int ExpiryInMinutes { get; set; }
+        public int? ExpiryInMinutes { get; set; }
     }
 }
 
