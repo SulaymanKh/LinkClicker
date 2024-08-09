@@ -3,6 +3,7 @@ using LinkClicker_API.Models.Admin;
 using LinkClicker_API.Models.Generic;
 using System.Collections.Generic;
 using System;
+using LinkClicker_API.Database;
 
 namespace LinkClicker_API.Controllers
 {
@@ -10,11 +11,13 @@ namespace LinkClicker_API.Controllers
     [Route("[controller]")]
     public class AdminController : ControllerBase
     {
+        private readonly LinkDbContext _context;
         private readonly ILogger<AdminController> _logger;
         private static readonly Dictionary<string, LinkDataModel> _links = new Dictionary<string, LinkDataModel>();
 
-        public AdminController(ILogger<AdminController> logger)
+        public AdminController(LinkDbContext context, ILogger<AdminController> logger)
         {
+            _context = context;
             _logger = logger;
         }
 
