@@ -11,6 +11,10 @@ import { Router } from '@angular/router';
 export class AdminComponent implements OnInit {
   form!: FormGroup;
   links: any[] = [];
+  paginatedLinks: any[] = []; 
+  currentPage: number = 1; 
+  pageSize: number = 10;
+  totalPages: number = 0;
 
   constructor(
     private http: HttpClient,
@@ -22,16 +26,17 @@ export class AdminComponent implements OnInit {
     this.form = new FormGroup({
       username: new FormControl('', [Validators.required]),
       linkCount: new FormControl('', [Validators.required, Validators.min(1)]),
+      allowedClicks: new FormControl('', [Validators.required, Validators.min(1)]),
       expiryTime: new FormControl('', [Validators.required, Validators.min(1)])
     });
   }
 
   onSubmit() {
     const linkData = {
-      url: 'http://localhost:4200/supersecret', 
+      url: `${this.baseUrl}supersecret`, 
       username: this.form.value.username,
       numberOfLinks: this.form.value.linkCount,
-      clicksPerLink: 1,
+      clicksPerLink: this.form.value.allowedClicks,
       ExpiryInMinutes: this.form.value.expiryTime
     };
 
@@ -40,14 +45,30 @@ export class AdminComponent implements OnInit {
       this.http.post(fullUrl, linkData)
         .subscribe(
           (response: any) => {
-            console.log('Success!', response);
             this.links = response.data;
+            this.updatePagination(); 
           },
           error => console.error('Error!', error)
         );
     } else {
       console.log('Form is not valid');
     }
+  }
+
+  updatePagination() {
+    this.totalPages = Math.ceil(this.links.length / this.pageSize);
+    this.paginate();
+  }
+
+  paginate() {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedLinks = this.links.slice(startIndex, endIndex);
+  }
+
+  changePage(page: number) {
+    this.currentPage = page;
+    this.paginate();
   }
 
   navigateToLink(link: any) {
