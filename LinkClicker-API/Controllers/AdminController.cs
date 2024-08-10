@@ -130,26 +130,32 @@ namespace LinkClicker_API.Controllers
             }
         }
 
-        [HttpGet("all-links")]
-        public async Task<IActionResult> GetAllLinks()
+        [HttpPost("all-links")]
+        public async Task<IActionResult> GetAllLinks([FromBody] PaginatedRequest paginatedRequest)
         {
-            var response = new ResponseWrapper<List<LinkInfoModel>>();
+            var response = new PaginatedResponseWrapper<LinkInfoModel>();
 
             try
             {
-                var links = await _context.Links.ToListAsync();
+                var query = _context.Links.AsQueryable();
+
+                var totalRecords = await query.CountAsync();
+                var links = await query
+                    .Skip((paginatedRequest.PageNumber - 1) * paginatedRequest.PageSize)
+                    .Take(paginatedRequest.PageSize)
+                    .ToListAsync();
 
                 foreach (var linkData in links)
                 {
                     CheckAndValidateStatus(linkData);
-
-                    if (linkData.Status != LinkStatus.Active)
-                    {
-                        _context.Links.Update(linkData);
-                    }
                 }
 
-                await _context.SaveChangesAsync();
+                var statusLinks = links.Where(link => link.Status != LinkStatus.Active).ToList();
+                if (statusLinks.Any())
+                {
+                    _context.Links.UpdateRange(statusLinks);
+                    await _context.SaveChangesAsync();
+                }
 
                 var linkInfos = links.Select(linkData => new LinkInfoModel
                 {
@@ -161,6 +167,10 @@ namespace LinkClicker_API.Controllers
                 }).ToList();
 
                 response.Data = linkInfos;
+                response.TotalRecords = totalRecords;
+                response.PageNumber = paginatedRequest.PageNumber;
+                response.PageSize = paginatedRequest.PageSize;
+
                 return Ok(response);
             }
             catch (Exception ex)

@@ -32,7 +32,6 @@ export class LinkDetailsComponent implements OnInit {
     this.http.get(`https://localhost:7072/Admin/link-details/${this.linkId}`)
       .subscribe(
         (response: any) => {
-          console.log(response);
          if (!response.isError){
             if (response.data.isExpired) {
               this.isExpired = true;
@@ -55,5 +54,5 @@ export class LinkDetailsComponent implements OnInit {
           this.message = 'An error occurred while fetching link details.';
         }
       );
-    }
+  }
 }

@@ -81,5 +81,16 @@ nav {
     font-weight: 500;
 }
 
+.pagination-info {
+    margin-top: 20px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.page-item.disabled .page-link {
+    cursor: not-allowed;
+    background-color: #e9ecef;
+}
+
 
   

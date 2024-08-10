@@ -37,7 +37,7 @@
           <button type="button" class="btn btn-danger" (click)="deleteAllLinks()">Remove All Links</button>
           <button type="button" class="btn btn-danger" (click)="deleteExpiredByTime()">Remove All Expired by Time</button>
           <button type="button" class="btn btn-danger" (click)="deleteExpiredByClicks()">Remove All Expired by Clicks</button>
-          <button type="button" class="btn btn-success" (click)="fetchAllLinks()">Refresh</button>
+          <button type="button" class="btn btn-success" (click)="fetchAllLinks(currentPage)">Refresh</button>
         </div>
         <h2>Generated Links</h2>
         <table class="table">
@@ -52,7 +52,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let link of paginatedLinks" (click)="navigateToLink(link)">
+            <tr *ngFor="let link of links" (click)="navigateToLink(link)">
               <td>{{ link.username }}</td>
               <td>{{ link.link }}</td>
               <td>{{ link.expiryTime | date:'short' }}</td>
@@ -62,7 +62,7 @@
                   {{ getStatusText(link.status) }}
                 </span>
               </td>
-              <td><button class="btn btn-info">Go to Link</button></td>
+              <td><button class="btn btn-info" (click)="navigateToLink(link)">Go to Link</button></td>
             </tr>
           </tbody>
         </table>
@@ -79,7 +79,10 @@
             </li>
           </ul>
         </nav>
+        <div class="pagination-info">
+          <p>Showing {{ startRecord }} to {{ endRecord }} of {{ totalRecords }} records</p>
+        </div>
       </div>
     </div>
-</div>
+  </div>
   

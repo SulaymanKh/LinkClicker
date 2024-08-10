@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -11,10 +11,10 @@ import { Router } from '@angular/router';
 export class AdminComponent implements OnInit {
   form!: FormGroup;
   links: any[] = [];
-  paginatedLinks: any[] = []; 
-  currentPage: number = 1; 
+  currentPage: number = 1;
   pageSize: number = 10;
   totalPages: number = 0;
+  totalRecords: number = 0;
   isLoading: boolean = false;
 
   statusMap: { [key: number]: string } = {
@@ -22,11 +22,11 @@ export class AdminComponent implements OnInit {
     1: 'Expired by Time',
     2: 'Expired by Clicks'
   };
+  baseUrl = "https://localhost:7072/";
 
   constructor(
     private http: HttpClient,
-    @Inject('BASE_URL') private baseUrl: string,
-    private router: Router 
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -46,7 +46,7 @@ export class AdminComponent implements OnInit {
 
   onSubmit() {
     const linkData = {
-      url: `${this.baseUrl}supersecret`, 
+      url: `http://localhost:4200/supersecret`,
       username: this.form.value.username,
       numberOfLinks: this.form.value.linkCount,
       clicksPerLink: this.form.value.allowedClicks,
@@ -54,17 +54,16 @@ export class AdminComponent implements OnInit {
     };
 
     if (this.form.valid) {
-      this.isLoading = true;  
-      const fullUrl = `https://localhost:7072/Admin/create-link`;
-      this.http.post(fullUrl, linkData)
+      this.isLoading = true;
+      this.http.post(`${this.baseUrl}Admin/create-link`, linkData)
         .subscribe(
-          (response: any) => {
+          () => {
             this.fetchAllLinks();
-            this.isLoading = false;  
+            this.isLoading = false;
           },
           error => {
             console.error('Error!', error);
-            this.isLoading = false;  
+            this.isLoading = false;
           }
         );
     } else {
@@ -72,41 +71,47 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  fetchAllLinks(){
-    this.isLoading = true; 
+  fetchAllLinks(pageNumber: number = 1) {
+    this.isLoading = true;
 
-    const fullUrl = `https://localhost:7072/Admin/all-links`;
-    this.http.get(fullUrl)
+    const paginatedRequest = {
+      pageNumber: pageNumber,
+      pageSize: this.pageSize
+    };
+
+    this.http.post<any>(`${this.baseUrl}Admin/all-links`, paginatedRequest)
       .subscribe(
-        (response: any) => {
+        response => {
           this.links = response.data;
-          this.updatePagination(); 
-          this.isLoading = false;  
+          this.totalRecords = response.totalRecords;
+          this.totalPages = response.totalPages;
+          this.currentPage = response.pageNumber;
+          this.isLoading = false;
         },
         error => {
           console.error('Error!', error);
-          this.isLoading = false; 
+          this.isLoading = false;
         }
       );
   }
 
   deleteLinks(deleteAll: boolean, statuses: number[]) {
-    this.isLoading = true; 
-    
+    this.isLoading = true;
+
     const requestBody = {
       deleteAll: deleteAll,
       statuses: statuses
     };
 
-    this.http.delete(`https://localhost:7072/Admin/delete-links`, { body: requestBody })
+    this.http.delete(`${this.baseUrl}Admin/delete-links`, { body: requestBody })
       .subscribe(
-        (response: any) => {
-          this.fetchAllLinks();
-          this.isLoading = false;  
+        () => {
+          this.fetchAllLinks(this.currentPage);
+          this.isLoading = false;
         },
         error => {
           console.error('Error!', error);
-          this.isLoading = false;  
+          this.isLoading = false;
         }
       );
   }
@@ -116,35 +121,32 @@ export class AdminComponent implements OnInit {
   }
 
   deleteExpiredByTime() {
-    this.deleteLinks(false, [1]); 
+    this.deleteLinks(false, [1]);
   }
 
   deleteExpiredByClicks() {
-    this.deleteLinks(false, [2]); 
+    this.deleteLinks(false, [2]);
   }
 
   getStatusText(statusCode: number): string {
     return this.statusMap[statusCode] || 'Unknown';
   }
 
-  updatePagination() {
-    this.totalPages = Math.ceil(this.links.length / this.pageSize);
-    this.paginate();
-  }
-
-  paginate() {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.paginatedLinks = this.links.slice(startIndex, endIndex);
-  }
-
   changePage(page: number) {
-    this.currentPage = page;
-    this.paginate();
+    if (page >= 1 && page <= this.totalPages) {
+      this.fetchAllLinks(page);
+    }
   }
 
   navigateToLink(link: any) {
-    this.fetchAllLinks();
     window.open(link.link, '_blank');
+  }
+
+  get startRecord(): number {
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endRecord(): number {
+    return Math.min(this.currentPage * this.pageSize, this.totalRecords);
   }
 }
