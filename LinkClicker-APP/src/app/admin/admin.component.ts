@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { SignalRService } from '../services/signalr.service';
+import { MatDialog } from '@angular/material/dialog';
+import { LinkCreationDialogComponent } from '../link-creation-dialog/link-creation-dialog.component';
 
 @Component({
   selector: 'app-admin',
@@ -26,7 +29,9 @@ export class AdminComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private signalRService: SignalRService,
+    private dialog: MatDialog 
   ) {}
 
   ngOnInit() {
@@ -41,6 +46,10 @@ export class AdminComponent implements OnInit {
       linkCount: new FormControl('', [Validators.required, Validators.min(1)]),
       allowedClicks: new FormControl('', [Validators.required, Validators.min(1)]),
       expiryTime: new FormControl(null)
+    });
+
+    this.signalRService.onLinkCreationCompleted((requestId: string, links: any[]) => {
+      this.fetchAllLinks();
     });
   }
 
@@ -58,8 +67,14 @@ export class AdminComponent implements OnInit {
       this.http.post(`${this.baseUrl}Admin/create-link`, linkData)
         .subscribe(
           () => {
-            this.fetchAllLinks();
             this.isLoading = false;
+            this.dialog.open(LinkCreationDialogComponent, {
+              width: '300px',
+              data: { position: 'bottom-right' }, 
+              panelClass: 'no-backdrop', 
+              disableClose: true, 
+              hasBackdrop: false 
+            });
           },
           error => {
             console.error('Error!', error);

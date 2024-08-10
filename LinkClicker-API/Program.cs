@@ -2,6 +2,7 @@ using LinkClicker_API.Database;
 using LinkClicker_API.Services;
 using LinkClicker_API.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using LinkClicker_API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 builder.Services.AddHostedService<LinkCreationBackgroundService>();
-
+builder.Services.AddSignalR();
 builder.Services.AddDbContext<LinkDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
@@ -24,7 +25,8 @@ builder.Services.AddCors(options =>
     {
         policyBuilder.WithOrigins("http://localhost:4200")
                       .AllowAnyHeader()
-                      .AllowAnyMethod();
+                      .AllowAnyMethod()
+                      .AllowCredentials();
     });
 });
 
@@ -37,11 +39,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseCors("AllowLocalhost4200");
 }
-
+app.UseCors("AllowLocalhost4200");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<LinkCreationHub>("/linkCreationHub");
 
 app.Run();

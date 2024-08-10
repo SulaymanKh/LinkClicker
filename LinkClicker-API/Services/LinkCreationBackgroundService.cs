@@ -2,6 +2,8 @@
 using LinkClicker_API.Models.LinkClickerDatabase;
 using LinkClicker_API.Models.Admin;
 using LinkClicker_API.Interfaces;
+using LinkClicker_API.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace LinkClicker_API.Services
 {
@@ -9,12 +11,18 @@ namespace LinkClicker_API.Services
     {
         private readonly IBackgroundTaskQueue _taskQueue;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IHubContext<LinkCreationHub> _hubContext;
         private readonly ILogger<LinkCreationBackgroundService> _logger;
 
-        public LinkCreationBackgroundService(IBackgroundTaskQueue taskQueue, IServiceScopeFactory serviceScopeFactory, ILogger<LinkCreationBackgroundService> logger)
+        public LinkCreationBackgroundService(
+            IBackgroundTaskQueue taskQueue, 
+            IServiceScopeFactory serviceScopeFactory,
+            IHubContext<LinkCreationHub> hubContext,
+            ILogger<LinkCreationBackgroundService> logger)
         {
             _taskQueue = taskQueue;
             _serviceScopeFactory = serviceScopeFactory;
+            _hubContext = hubContext;
             _logger = logger;
         }
 
@@ -73,7 +81,8 @@ namespace LinkClicker_API.Services
                     await context.SaveChangesAsync(stoppingToken);
                 }
 
-                _logger.LogInformation("Links created successfully.");
+                await _hubContext.Clients.All.SendAsync("LinkCreationCompleted", request, null);
+                _logger.LogInformation("Links created successfully and notification sent..");
             }
             catch (Exception ex)
             {
