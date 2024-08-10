@@ -1,3 +1,4 @@
+using LinkClicker_API.Models.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LinkClicker_API.Controllers

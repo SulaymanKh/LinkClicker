@@ -1,4 +1,4 @@
-namespace LinkClicker_API
+namespace LinkClicker_API.Models.Generic
 {
     public class WeatherForecast
     {

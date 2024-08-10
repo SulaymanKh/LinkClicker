@@ -6,6 +6,7 @@ using System;
 using LinkClicker_API.Database;
 using LinkClicker_API.Models.LinkClickerDatabase;
 using Microsoft.EntityFrameworkCore;
+using LinkClicker_API.Interfaces;
 
 namespace LinkClicker_API.Controllers
 {
@@ -15,11 +16,16 @@ namespace LinkClicker_API.Controllers
     {
         private readonly LinkDbContext _context;
         private readonly ILogger<AdminController> _logger;
+        private readonly IBackgroundTaskQueue _taskQueue;
 
-        public AdminController(LinkDbContext context, ILogger<AdminController> logger)
+        public AdminController(
+            LinkDbContext context, 
+            ILogger<AdminController> logger,
+            IBackgroundTaskQueue linkCreationQueueService)
         {
             _context = context;
             _logger = logger;
+            _taskQueue = linkCreationQueueService;
         }
 
         [HttpPost("create-link")]
@@ -29,40 +35,9 @@ namespace LinkClicker_API.Controllers
 
             try
             {
-                var links = new List<LinkInfoModel>();
+                _taskQueue.QueueBackgroundWorkItem(request);
 
-                for (int i = 0; i < request.NumberOfLinks; i++)
-                {
-                    var linkId = Guid.NewGuid();
-
-                    var linkData = new Link
-                    {
-                        Id = linkId,
-                        Url = request.Url,
-                        Username = request.Username,
-                        ExpiryTime = request.ExpiryInMinutes.HasValue
-                             ? DateTime.UtcNow.AddMinutes(request.ExpiryInMinutes.Value): (DateTime?)null,
-                        MaxClicks = request.ClicksPerLink,
-                        ClickCount = 0,
-                        Status = LinkStatus.Active
-                    };
-
-                    _context.Links.Add(linkData);
-
-                    var linkInfo = new LinkInfoModel
-                    {
-                        Username = linkData.Username,
-                        Link = $"{request.Url}/{linkId}",
-                        ExpiryTime = linkData.ExpiryTime.HasValue ? linkData.ExpiryTime.Value : (DateTime?)null,
-                        MaxClicks = request.ClicksPerLink,
-                        Status = linkData.Status
-                    };
-
-                    links.Add(linkInfo);
-                }
-
-                await _context.SaveChangesAsync();
-                response.Data = links;
+                response.Information = "success";
                 return Ok(response);
             }
             catch (Exception ex)
@@ -125,7 +100,6 @@ namespace LinkClicker_API.Controllers
                 _logger.LogError(ex, "An error occurred while getting link information.");
                 response.IsError = true;
                 response.Information = "An unexpected error occurred.";
-                response.Data = null;
                 return StatusCode(500, response);
             }
         }

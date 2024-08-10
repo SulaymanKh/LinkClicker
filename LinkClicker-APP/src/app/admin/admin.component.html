@@ -52,7 +52,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let link of links" (click)="navigateToLink(link)">
+            <tr *ngFor="let link of links">
               <td>{{ link.username }}</td>
               <td>{{ link.link }}</td>
               <td>{{ link.expiryTime | date:'short' }}</td>
