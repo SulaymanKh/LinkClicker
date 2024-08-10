@@ -34,10 +34,10 @@
       </form>
       <div *ngIf="links.length > 0" class="mt-4">
         <div class="extra-controls">
-          <button type="button" class="btn btn-danger" (click)="deleteAllLinks()">Remove All Links</button>
-          <button type="button" class="btn btn-danger" (click)="deleteExpiredByTime()">Remove All Expired by Time</button>
-          <button type="button" class="btn btn-danger" (click)="deleteExpiredByClicks()">Remove All Expired by Clicks</button>
-          <button type="button" class="btn btn-success" (click)="fetchAllLinks(currentPage)">Refresh</button>
+          <button type="button" class="btn btn-danger" (click)="deleteAllLinks()" matTooltip="This will remove all links" matTooltipPosition="above">Remove All Links</button>
+          <button type="button" class="btn btn-danger" (click)="deleteExpiredByTime()" matTooltip="This will remove all expired by time links on your current selected page." matTooltipPosition="above">Remove All Expired by Time</button> 
+          <button type="button" class="btn btn-danger" (click)="deleteExpiredByClicks()" matTooltip="This will remove all expired by clicks links on your current selected page." matTooltipPosition="above">Remove All Expired by Clicks</button>
+          <button type="button" class="btn btn-success" (click)="fetchAllLinks(currentPage)" matTooltip="Refresh your table!" matTooltipPosition="above">Refresh</button>
         </div>
         <h2>Generated Links</h2>
         <table class="table">

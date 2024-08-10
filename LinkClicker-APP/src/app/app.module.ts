@@ -17,6 +17,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog'; 
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatProgressSpinnerModule,
     CommonModule,
     MatDialogModule,
+    MatTooltipModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'admin', component: AdminComponent },

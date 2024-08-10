@@ -155,6 +155,10 @@ export class AdminComponent implements OnInit {
 
   navigateToLink(link: any) {
     window.open(link.link, '_blank');
+
+    setTimeout(() => {
+      this.fetchAllLinks();
+    }, 1000); 
   }
 
   get startRecord(): number {
