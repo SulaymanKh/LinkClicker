@@ -4,6 +4,8 @@ using LinkClicker_API.Models.Generic;
 using System.Collections.Generic;
 using System;
 using LinkClicker_API.Database;
+using LinkClicker_API.Models.LinkClickerDatabase;
+using Microsoft.EntityFrameworkCore;
 
 namespace LinkClicker_API.Controllers
 {
@@ -13,7 +15,6 @@ namespace LinkClicker_API.Controllers
     {
         private readonly LinkDbContext _context;
         private readonly ILogger<AdminController> _logger;
-        private static readonly Dictionary<string, LinkDataModel> _links = new Dictionary<string, LinkDataModel>();
 
         public AdminController(LinkDbContext context, ILogger<AdminController> logger)
         {
@@ -29,10 +30,12 @@ namespace LinkClicker_API.Controllers
             try
             {
                 var links = new List<LinkInfoModel>();
+
                 for (int i = 0; i < request.NumberOfLinks; i++)
                 {
-                    var linkId = Guid.NewGuid().ToString();
-                    var linkData = new LinkDataModel
+                    var linkId = Guid.NewGuid();
+
+                    var linkData = new Link
                     {
                         Id = linkId,
                         Url = request.Url,
@@ -44,7 +47,7 @@ namespace LinkClicker_API.Controllers
                         Status = LinkStatus.Active
                     };
 
-                    _links.Add(linkId, linkData);
+                    _context.Links.Add(linkData);
 
                     var linkInfo = new LinkInfoModel
                     {
@@ -58,6 +61,7 @@ namespace LinkClicker_API.Controllers
                     links.Add(linkInfo);
                 }
 
+                await _context.SaveChangesAsync();
                 response.Data = links;
                 return Ok(response);
             }
@@ -71,28 +75,27 @@ namespace LinkClicker_API.Controllers
         }
 
         [HttpGet("link-details/{id}")]
-        public async Task<IActionResult> GetLinkDetails(string id)
+        public async Task<IActionResult> GetLinkDetails(Guid id)
         {
             var response = new ResponseWrapper<GetLinkDetailsModel>();
 
             try
             {
-                if (_links.TryGetValue(id, out var linkData))
-                {
-                    linkData.ClickCount++;
+                var linkData = await _context.Links.FindAsync(id);
 
+                if (linkData != null)
+                {
                     CheckAndValidateStatus(linkData);
 
-                    if (linkData.Status != LinkStatus.Active)
+                    if (linkData.Status == LinkStatus.Active)
                     {
-                        response.IsError = true;
-                        response.Information = "There are no secrets here.";
-                        response.Data = null;
-                    }
-                    else
-                    {
+                        linkData.ClickCount++;
+
+                        _context.Links.Update(linkData);
+                        await _context.SaveChangesAsync();
+
                         response.Information = $"You have found the secret, {linkData.Username}!.";
-                        response.Data = new GetLinkDetailsModel()
+                        response.Data = new GetLinkDetailsModel
                         {
                             IsExpired = false,
                             Username = linkData.Username,
@@ -103,12 +106,16 @@ namespace LinkClicker_API.Controllers
                             Status = linkData.Status
                         };
                     }
+                    else
+                    {
+                        response.IsError = true;
+                        response.Information = "There are no secrets here.";
+                    }
                 }
                 else
                 {
                     response.IsError = true;
                     response.Information = "Link not found.";
-                    response.Data = null;
                 }
 
                 return Ok(response);
@@ -124,18 +131,27 @@ namespace LinkClicker_API.Controllers
         }
 
         [HttpGet("all-links")]
-        public IActionResult GetAllLinks()
+        public async Task<IActionResult> GetAllLinks()
         {
             var response = new ResponseWrapper<List<LinkInfoModel>>();
 
             try
             {
-                foreach (var linkData in _links.Values)
+                var links = await _context.Links.ToListAsync();
+
+                foreach (var linkData in links)
                 {
                     CheckAndValidateStatus(linkData);
+
+                    if (linkData.Status != LinkStatus.Active)
+                    {
+                        _context.Links.Update(linkData);
+                    }
                 }
 
-                var links = _links.Values.Select(linkData => new LinkInfoModel
+                await _context.SaveChangesAsync();
+
+                var linkInfos = links.Select(linkData => new LinkInfoModel
                 {
                     Username = linkData.Username,
                     Link = $"{linkData.Url}/{linkData.Id}",
@@ -144,7 +160,7 @@ namespace LinkClicker_API.Controllers
                     Status = linkData.Status
                 }).ToList();
 
-                response.Data = links;
+                response.Data = linkInfos;
                 return Ok(response);
             }
             catch (Exception ex)
@@ -157,36 +173,25 @@ namespace LinkClicker_API.Controllers
         }
 
         [HttpDelete("delete-links")]
-        public IActionResult DeleteLinks(DeleteLinksRequestModel request)
+        public async Task<IActionResult> DeleteLinks(DeleteLinksRequestModel request)
         {
             var response = new ResponseWrapper<string>();
 
             try
             {
-                List<string> keysToRemove = new List<string>();
+                var query = _context.Links.AsQueryable();
 
-                if (request.DeleteAll)
+                if (!request.DeleteAll)
                 {
-                    keysToRemove.AddRange(_links.Keys);
-                }
-                else
-                {
-                    foreach (var link in _links)
-                    {
-                        CheckAndValidateStatus(link.Value);
-                        if (request.Statuses.Contains(link.Value.Status))
-                        {
-                            keysToRemove.Add(link.Key);
-                        }
-                    }
+                    query = query.Where(link => request.Statuses.Contains(link.Status));
                 }
 
-                foreach (var key in keysToRemove)
-                {
-                    _links.Remove(key);
-                }
+                var linksToDelete = await query.ToListAsync();
 
-                response.Data = $"Links have been deleted based on the provided criteria.";
+                _context.Links.RemoveRange(linksToDelete);
+                await _context.SaveChangesAsync();
+
+                response.Data = "Links have been deleted based on the provided criteria.";
                 return Ok(response);
             }
             catch (Exception ex)
@@ -198,15 +203,18 @@ namespace LinkClicker_API.Controllers
             }
         }
 
-        private void CheckAndValidateStatus(LinkDataModel linkData)
+        private void CheckAndValidateStatus(Link linkData)
         {
-            if (linkData.ExpiryTime.HasValue && linkData.ExpiryTime <= DateTime.UtcNow)
+            if (linkData.Status == LinkStatus.Active)
             {
-                linkData.Status = LinkStatus.ExpiredByTime;
-            }
-            else if (linkData.ClickCount > linkData.MaxClicks)
-            {
-                linkData.Status = LinkStatus.ExpiredByClicks;
+                if (linkData.ExpiryTime.HasValue && linkData.ExpiryTime <= DateTime.UtcNow)
+                {
+                    linkData.Status = LinkStatus.ExpiredByTime;
+                }
+                else if (linkData.ClickCount >= linkData.MaxClicks)
+                {
+                    linkData.Status = LinkStatus.ExpiredByClicks;
+                }
             }
         }
     }

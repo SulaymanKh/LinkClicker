@@ -57,7 +57,11 @@
               <td>{{ link.link }}</td>
               <td>{{ link.expiryTime | date:'short' }}</td>
               <td>{{ link.maxClicks }}</td>
-              <td>{{ getStatusText(link.status) }}</td>
+              <td>
+                <span [ngClass]="{'badge-expired': link.status !== 0,'badge-active': link.status === 0}">
+                  {{ getStatusText(link.status) }}
+                </span>
+              </td>
               <td><button class="btn btn-info">Go to Link</button></td>
             </tr>
           </tbody>

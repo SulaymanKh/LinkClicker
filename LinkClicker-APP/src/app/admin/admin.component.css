@@ -62,4 +62,24 @@ nav {
     flex: 1;
     max-width: 200px;
 }
+
+.badge-expired {
+    background-color: rgb(235, 145, 154); 
+    color: rgb(243, 26, 26)64; 
+    padding: 0.5rem 1rem; 
+    border-radius: 1rem; 
+    font-size: 0.875rem; 
+    font-weight: 500; 
+}
+
+.badge-active {
+    background-color: #d4edda;
+    color: #4eac64;
+    padding: 0.5rem 1rem; 
+    border-radius: 1rem; 
+    font-size: 0.875rem; 
+    font-weight: 500;
+}
+
+
   

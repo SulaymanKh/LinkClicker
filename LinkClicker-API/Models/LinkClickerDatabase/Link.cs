@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using LinkClicker_API.Models.Admin;
 
 namespace LinkClicker_API.Models.LinkClickerDatabase
 {
@@ -25,12 +26,5 @@ namespace LinkClicker_API.Models.LinkClickerDatabase
 
         [Required]
         public LinkStatus Status { get; set; } 
-    }
-
-    public enum LinkStatus
-    {
-        Active = 0,
-        ExpiredByTime = 1,
-        ExpiredByClicks = 2
     }
 }

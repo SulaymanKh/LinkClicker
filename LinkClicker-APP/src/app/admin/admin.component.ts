@@ -92,14 +92,13 @@ export class AdminComponent implements OnInit {
 
   deleteLinks(deleteAll: boolean, statuses: number[]) {
     this.isLoading = true; 
-
-    const fullUrl = `https://localhost:7072/Admin/delete-links`;
+    
     const requestBody = {
       deleteAll: deleteAll,
       statuses: statuses
     };
 
-    this.http.delete(fullUrl, { body: requestBody })
+    this.http.delete(`https://localhost:7072/Admin/delete-links`, { body: requestBody })
       .subscribe(
         (response: any) => {
           this.fetchAllLinks();
