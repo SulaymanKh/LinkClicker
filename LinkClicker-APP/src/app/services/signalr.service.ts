@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { MatDialog } from '@angular/material/dialog';
 import { LinkCreationCompletedDialogComponent } from '../link-creation-completed-dialog/link-creation-completed-dialog.component';
+import { ConfigService } from '../services/config.service'; 
 
 @Injectable({
   providedIn: 'root'
@@ -9,9 +10,12 @@ import { LinkCreationCompletedDialogComponent } from '../link-creation-completed
 export class SignalRService {
   private hubConnection: HubConnection;
 
-  constructor(private dialog: MatDialog) {
+  constructor(
+    private dialog: MatDialog,
+    private configService: ConfigService
+) {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl('https://localhost:7072/linkCreationHub', {
+      .withUrl(`${this.configService.webApiUrl}linkCreationHub`, {
         withCredentials: true
       })
       .configureLogging(LogLevel.Information)

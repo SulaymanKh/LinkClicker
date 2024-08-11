@@ -1,10 +1,46 @@
 <div class="container mt-5">
-    <div class="jumbotron">
+    <div class="jumbotron text-center">
       <h1 class="display-4">Welcome to Link Clicker</h1>
       <p class="lead">Your go-to place for amazing features and tools.</p>
       <hr class="my-4">
-      <a routerLink="/contact" class="btn btn-primary">Get Started</a>
+      <a routerLink="/admin" class="btn btn-primary btn-lg">Get Started</a>
+      <hr class="my-4">
+      
+      <section class="info-section">
+        <h2>About This Application</h2>
+        <p>This application features a basic Angular frontend that interacts with an ASP.NET Core Web API. The API supports link creation, deletion, and retrieval, with built-in pagination to handle large datasets efficiently.</p>
+        <p>Upon link creation, the backend checks if the database exceeds 200,000 rows. If it does, requests are processed asynchronously using background services. Users receive SignalR notifications upon completion, minimizing the need for extended wait times.</p>
+        <p>Pagination is utilized to ensure quick data access and maintain a responsive user experience.</p>
+      </section>
+  
+      <section class="future-improvements">
+        <h2>Future Improvements</h2>
+        <ul>
+          <li>Introduce logging and secure authentication for enhanced user management.</li>
+          <li>Develop internal logging and audit trails for effective exception tracking.</li>
+          <li>Modularize processing logic into a self-contained project for better organization.</li>
+          <li>Integrate RabbitMQ for advanced queue communication.</li>
+          <li>Optimize link deletion by leveraging asynchronous message processing.</li>
+          <li>Adjust the maximum link creation limit based on available resources.</li>
+          <li>Implement comprehensive validation on both frontend and backend to ensure data integrity.</li>
+          <li>Develop unit tests for frontend components to improve reliability.</li>
+        </ul>
+      </section>
+  
+      <section class="resources-used">
+        <h2>Resources Used</h2>
+        <ul>
+          <li>YouTube</li>
+          <li>Previous work and personal experience</li>
+          <li>Microsoft Learn tutorials</li>
+          <li>ChatGPT for styling and guidance</li>
+          <li>Personal experiences</li>
+        </ul>
+      </section>
+  
+      <section class="note">
+        <p><strong>Note:</strong> I completed this task while just getting married recently, with my wife being quite vocal about me needing to take breaks! (Just got married on Monday.)</p>
+      </section>
     </div>
 </div>
-  
   

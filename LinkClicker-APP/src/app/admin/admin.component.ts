@@ -6,6 +6,7 @@ import { SignalRService } from '../services/signalr.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LinkCreationDialogComponent } from '../link-creation-dialog/link-creation-dialog.component';
 import { InformationDialogComponent } from '../information-dialog/information-dialog.component';
+import { ConfigService } from '../services/config.service'; 
 
 @Component({
   selector: 'app-admin',
@@ -26,13 +27,13 @@ export class AdminComponent implements OnInit {
     1: 'Expired by Time',
     2: 'Expired by Clicks'
   };
-  baseUrl = "https://localhost:7072/";
 
   constructor(
     private http: HttpClient,
     private router: Router,
     private signalRService: SignalRService,
-    private dialog: MatDialog 
+    private dialog: MatDialog,
+    private configService: ConfigService
   ) {}
 
   ngOnInit() {
@@ -66,7 +67,7 @@ export class AdminComponent implements OnInit {
 
   onSubmit() {
     const linkData = {
-      url: `http://localhost:4200/supersecret`,
+      url: `${this.configService.webAppUrl}supersecret`,
       username: this.form.value.username,
       numberOfLinks: this.form.value.linkCount,
       clicksPerLink: this.form.value.allowedClicks,
@@ -75,7 +76,7 @@ export class AdminComponent implements OnInit {
 
     if (this.form.valid) {
       this.isLoading = true;
-      this.http.post<CreateLinkResponse>(`${this.baseUrl}Admin/create-link`, linkData)
+      this.http.post<CreateLinkResponse>(`${this.configService.webApiUrl}Admin/create-link`, linkData)
         .subscribe(
           response => {
             this.isLoading = false;
@@ -93,7 +94,6 @@ export class AdminComponent implements OnInit {
                 hasBackdrop: false 
               });
             }
-
           },
           error => {
             console.error('Error!', error);
@@ -113,7 +113,7 @@ export class AdminComponent implements OnInit {
       pageSize: this.pageSize
     };
 
-    this.http.post<any>(`${this.baseUrl}Admin/all-links`, paginatedRequest)
+    this.http.post<any>(`${this.configService.webApiUrl}Admin/all-links`, paginatedRequest)
       .subscribe(
         response => {
           this.links = response.data;
@@ -137,7 +137,7 @@ export class AdminComponent implements OnInit {
       statuses: statuses
     };
 
-    this.http.delete(`${this.baseUrl}Admin/delete-links`, { body: requestBody })
+    this.http.delete(`${this.configService.webApiUrl}Admin/delete-links`, { body: requestBody })
       .subscribe(
         () => {
           this.fetchAllLinks(this.currentPage);

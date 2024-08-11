@@ -1,15 +1,73 @@
-.hero {
-    color: #fff;
-    padding: 60px 0;
-    text-align: center;
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
 }
 
-.hero h1 {
-    font-size: 48px;
-    margin: 0;
+.jumbotron {
+    border-radius: 0.3rem;
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+}
+  
+.jumbotron h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+  
+.jumbotron p.lead {
+    font-size: 1.25rem;
+}
+  
+.jumbotron a.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+  
+.jumbotron a.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
 }
 
-.hero p {
-    font-size: 24px;
-    margin: 10px 0 20px;
+.info-section, .future-improvements, .resources-used, .note {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.3rem;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+  
+.info-section h2, .future-improvements h2, .resources-used h2, .note h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+  
+.info-section p, .future-improvements ul, .resources-used ul, .note p {
+    font-size: 1rem;
+}
+  
+.future-improvements ul, .resources-used ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+  
+.note {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+  
+@media (max-width: 768px) {
+    .jumbotron h1 {
+        font-size: 2rem;
+    }
+
+    .jumbotron p.lead {
+        font-size: 1rem;
+    }
+    
+    .info-section h2, .future-improvements h2, .resources-used h2, .note h2 {
+        font-size: 1.5rem;
+    }
+}
+  

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { ConfigService } from '../services/config.service'; 
 
 @Component({
   selector: 'app-link-details',
@@ -18,7 +19,11 @@ export class LinkDetailsComponent implements OnInit {
   message = '';
   information! : string;
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) { }
+  constructor(
+    private route: ActivatedRoute, 
+    private http: HttpClient,
+    private configService: ConfigService 
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -29,7 +34,7 @@ export class LinkDetailsComponent implements OnInit {
   }
 
   fetchLinkDetails() {
-    this.http.get(`https://localhost:7072/Admin/link-details/${this.linkId}`)
+    this.http.get(`${this.configService.webApiUrl}Admin/link-details/${this.linkId}`)
       .subscribe(
         (response: any) => {
          if (!response.isError){
