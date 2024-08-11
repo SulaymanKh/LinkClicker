@@ -42,3 +42,5 @@ In the terminal, run:
 ng serve
 
 Open a web browser and navigate to http://localhost:4200 to view the application.
+
+Note - In angular web app config.service.ts check the urls are correct or you will experience errors!
