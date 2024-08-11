@@ -53,3 +53,9 @@ ScaffoldingReadMe.txt
 *.temp
 *.bak
 TestResults/
+/.vs/LinkClicker/DesignTimeBuild/.dtbcache.v2
+/LinkClicker-API/bin/Debug/net8.0/LinkClicker-API.deps.json
+/LinkClicker-API/bin/Debug/net8.0/LinkClicker-API.dll
+/LinkClicker-API/bin/Debug/net8.0/LinkClicker-API.exe
+/LinkClicker-API/bin/Debug/net8.0/LinkClicker-API.pdb
+/LinkClicker-APP/package-lock.json
