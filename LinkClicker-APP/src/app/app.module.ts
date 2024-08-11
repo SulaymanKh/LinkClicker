@@ -12,6 +12,7 @@ import { LinkDetailsComponent } from './link-details/link-details.component';
 import { HomeComponent } from './home/home.component';
 import { LinkCreationDialogComponent } from './link-creation-dialog/link-creation-dialog.component';
 import { LinkCreationCompletedDialogComponent } from './link-creation-completed-dialog/link-creation-completed-dialog.component';
+import { InformationDialogComponent } from './information-dialog/information-dialog.component';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -26,7 +27,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     AdminComponent,
     HomeComponent,
     LinkCreationDialogComponent,
-    LinkCreationCompletedDialogComponent
+    LinkCreationCompletedDialogComponent,
+    InformationDialogComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { SignalRService } from '../services/signalr.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LinkCreationDialogComponent } from '../link-creation-dialog/link-creation-dialog.component';
+import { InformationDialogComponent } from '../information-dialog/information-dialog.component';
 
 @Component({
   selector: 'app-admin',
@@ -43,9 +44,19 @@ export class AdminComponent implements OnInit {
         Validators.maxLength(50),
         Validators.pattern('^[a-zA-Z0-9_]*$')
       ]),
-      linkCount: new FormControl('', [Validators.required, Validators.min(1)]),
-      allowedClicks: new FormControl('', [Validators.required, Validators.min(1)]),
-      expiryTime: new FormControl(null)
+      linkCount: new FormControl('', [
+        Validators.required, 
+        Validators.min(1), 
+        Validators.max(25000) 
+      ]),
+      allowedClicks: new FormControl('', [
+        Validators.required, 
+        Validators.min(1),
+        Validators.max(25000)
+      ]),
+      expiryTime: new FormControl(null, [
+        Validators.max(525600) 
+      ])
     });
 
     this.signalRService.onLinkCreationCompleted((requestId: string, links: any[]) => {
@@ -64,17 +75,25 @@ export class AdminComponent implements OnInit {
 
     if (this.form.valid) {
       this.isLoading = true;
-      this.http.post(`${this.baseUrl}Admin/create-link`, linkData)
+      this.http.post<CreateLinkResponse>(`${this.baseUrl}Admin/create-link`, linkData)
         .subscribe(
-          () => {
+          response => {
             this.isLoading = false;
-            this.dialog.open(LinkCreationDialogComponent, {
-              width: '300px',
-              data: { position: 'bottom-right' }, 
-              panelClass: 'no-backdrop', 
-              disableClose: true, 
-              hasBackdrop: false 
-            });
+            if (response.isError){
+              this.dialog.open(InformationDialogComponent, {
+                width: '300px',
+                data: { message: response.information }
+              });
+            }else{
+              this.dialog.open(LinkCreationDialogComponent, {
+                width: '300px',
+                data: { position: 'bottom-right' }, 
+                panelClass: 'no-backdrop', 
+                disableClose: true, 
+                hasBackdrop: false 
+              });
+            }
+
           },
           error => {
             console.error('Error!', error);
@@ -168,4 +187,10 @@ export class AdminComponent implements OnInit {
   get endRecord(): number {
     return Math.min(this.currentPage * this.pageSize, this.totalRecords);
   }
+}
+
+export interface CreateLinkResponse {
+  isError: boolean;
+  information: string;
+  data: []
 }

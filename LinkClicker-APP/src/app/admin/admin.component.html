@@ -20,14 +20,27 @@
           <div class="form-group col-md-6">
             <label for="allowedClicks">Clicks Allowed</label>
             <input type="number" class="form-control" id="allowedClicks" formControlName="allowedClicks" placeholder="Enter number of allowed clicks" required>
+            <div *ngIf="form.get('allowedClicks')?.invalid && form.get('allowedClicks')?.touched" class="invalid-feedback">
+                <div *ngIf="form.get('allowedClicks')?.errors?.['required']">Number of click allowed is required.</div>
+                <div *ngIf="form.get('allowedClicks')?.errors?.['min']">At least one click allowed is required.</div>
+                <div *ngIf="form.get('allowedClicks')?.errors?.['max']">Cannot add more than 25,000 clicks allowed.</div>
+            </div>
           </div>
           <div class="form-group col-md-6">
             <label for="linkCount">Number of Links</label>
             <input type="number" class="form-control" id="linkCount" formControlName="linkCount" placeholder="Enter number of links" required>
+            <div *ngIf="form.get('linkCount')?.invalid && form.get('linkCount')?.touched" class="invalid-feedback">
+                <div *ngIf="form.get('linkCount')?.errors?.['required']">Number of links is required.</div>
+                <div *ngIf="form.get('linkCount')?.errors?.['min']">At least one link is required.</div>
+                <div *ngIf="form.get('linkCount')?.errors?.['max']">Cannot create more than 25,000 links at a time.</div>
+            </div>
           </div>
           <div class="form-group col-md-6">
             <label for="expiryTime">Expiry Time (in mins) - Optional</label>
             <input type="number" class="form-control" id="expiryTime" formControlName="expiryTime" placeholder="Duration in mins">
+            <div *ngIf="form.get('expiryTime')?.invalid && form.get('expiryTime')?.touched" class="invalid-feedback">
+                <div *ngIf="form.get('expiryTime')?.errors?.['max']">Expiry time cannot exceed 1 year (525,600 minutes).</div>
+            </div>
           </div>
         </div>
         <button type="submit" class="btn btn-primary btn-block">Create Links</button>

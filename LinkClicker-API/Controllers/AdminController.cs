@@ -35,9 +35,18 @@ namespace LinkClicker_API.Controllers
 
             try
             {
+                var rowCount = await _context.Links.CountAsync();
+
+                if (rowCount >= 200000)
+                {
+                    response.IsError = true;
+                    response.Information = "The system has reached the maximum number of links (200,000). No more requests can be accepted.";
+                    return Ok(response); 
+                }
+
                 _taskQueue.QueueBackgroundWorkItem(request);
 
-                response.Information = "success";
+                response.Information = "Success";
                 return Ok(response);
             }
             catch (Exception ex)
