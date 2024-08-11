@@ -1,46 +1,48 @@
----LinkClicker Project---
+# LinkClicker
 
-**Running the Project Locally**
-Web API
+## Pull Down Source
 
-Open the Solution:
+### Setting up Backend
 
-Open LinkClicker.sln in Visual Studio.
-Clean and Build:
+**Running the Web API Locally**
 
-In Visual Studio, select Build > Clean Solution.
-Then, select Build > Rebuild Solution.
-Configure Database Connection:
+1. **Open the Solution in Visual Studio:**
+   - Open `LinkClicker.sln` in Visual Studio.
+   - Select **Build** > **Clean Solution**.
 
-Open appsettings.json (or appsettings.Development.json if you are in development mode).
-Update the ConnectionStrings section with your SQL Server connection details.
-Apply Entity Framework Migrations:
+2. **Configure Database Connection:**
+   - Open `appsettings.json` (or `appsettings.Development.json` if you are in development mode).
+   - Update the `ConnectionStrings` section with your SQL Server connection details.
 
-Open the Package Manager Console in Visual Studio (Tools > NuGet Package Manager > Package Manager Console).
-Run the following command to update the database schema:
-powershell
-Update-Database
+3. **Apply Entity Framework Migrations:**
+   - Open the **Package Manager Console** in Visual Studio (`Tools` > `NuGet Package Manager` > `Package Manager Console`).
+   - Run the following command to update the database schema:
+     ```bash
+     dotnet ef database update --project (project csproj path)
+     ```
 
+4. **Run the Web API:**
+   - Start the Web API project by pressing **F5** or selecting **Debug** > **Start Debugging**.
 
+### Setting up Front-end
 
-**Run the Web API:**
+**Running the Angular Application Locally**
 
-Start the Web API project by pressing F5 or selecting Debug > Start Debugging.
-Web App (Angular)
-Open in Visual Studio Code:
+1. **Open in Visual Studio Code:**
+   - Open the Angular project folder in Visual Studio Code.
 
-Open the Angular project folder in Visual Studio Code.
-Install Dependencies:
+2. **Install Dependencies:**
+   - Open a terminal in Visual Studio Code.
+   - Run the following command to install the necessary packages:
+     ```bash
+     npm install
+     ```
 
-Open a terminal in Visual Studio Code.
-Run the following command to install the necessary packages:
-npm install
+3. **Serve the Angular Application:**
+   - In the terminal, run:
+     ```bash
+     ng serve
+     ```
+   - Open a web browser and navigate to `http://localhost:4200` to view the application.
 
-**Serve the Angular Application:**
-
-In the terminal, run:
-ng serve
-
-Open a web browser and navigate to http://localhost:4200 to view the application.
-
-Note - In angular web app config.service.ts check the urls are correct or you will experience errors!
+**Note:** In `config.service.ts`, ensure that the URLs are correctly configured to avoid errors.
