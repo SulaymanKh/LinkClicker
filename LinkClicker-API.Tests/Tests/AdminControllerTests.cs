@@ -203,15 +203,60 @@ namespace LinkClicker_API.Tests.Tests
             _context.Links.Add(link);
             await _context.SaveChangesAsync();
 
-            // Act
+            //Act
             var result = await _controller.GetLinkDetails(id) as OkObjectResult;
             var response = result?.Value as ResponseWrapper<GetLinkDetailsModel>;
 
-            // Assert
+            //Assert
             Assert.NotNull(result);
             Assert.Equal($"You have found the secret, {link.Username}!.", response?.Information);
             Assert.False(response.IsError);
             Assert.NotNull(response.Data);
+        }
+
+        [Fact]
+        public async Task GetLinkDetails_ShouldReturnErrorLinkDetails_WhenLinkExists()
+        {
+            //Arrange
+            var id = Guid.NewGuid();
+            var link = new Link
+            {
+                Id = id,
+                Status = LinkStatus.ExpiredByClicks,
+                Username = "TestUser",
+                Url = "http://testurl.com",
+                ExpiryTime = DateTime.UtcNow.AddHours(1),
+                MaxClicks = 10,
+                ClickCount = 0
+            };
+
+            _context.Links.Add(link);
+            await _context.SaveChangesAsync();
+
+            //Act
+            var result = await _controller.GetLinkDetails(id) as OkObjectResult;
+            var response = result?.Value as ResponseWrapper<GetLinkDetailsModel>;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal($"There are no secrets here.", response?.Information);
+            Assert.True(response.IsError);
+        }
+
+        [Fact]
+        public async Task GetLinkDetails_ShouldReturnErrorLinkDetails_WhenLinkDoesNotExists()
+        {
+            //Arrange
+            var id = Guid.NewGuid();
+
+            //Act
+            var result = await _controller.GetLinkDetails(id) as OkObjectResult;
+            var response = result?.Value as ResponseWrapper<GetLinkDetailsModel>;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal($"There are no secrets here.", response?.Information);
+            Assert.True(response.IsError);
         }
     }
 }
