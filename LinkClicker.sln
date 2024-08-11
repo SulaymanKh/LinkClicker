@@ -5,6 +5,8 @@ VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkClicker-API", "LinkClicker-API\LinkClicker-API.csproj", "{C019640F-A7F7-475B-B4E7-9950C09A13FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkClicker-API.Tests", "LinkClicker-API.Tests\LinkClicker-API.Tests.csproj", "{07790E8A-6D13-4D74-9DDF-7E179CC147C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{C019640F-A7F7-475B-B4E7-9950C09A13FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C019640F-A7F7-475B-B4E7-9950C09A13FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C019640F-A7F7-475B-B4E7-9950C09A13FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07790E8A-6D13-4D74-9DDF-7E179CC147C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07790E8A-6D13-4D74-9DDF-7E179CC147C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07790E8A-6D13-4D74-9DDF-7E179CC147C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07790E8A-6D13-4D74-9DDF-7E179CC147C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
